@@ -1,0 +1,268 @@
+User:
+user id ✓
+username ✓
+Display Name ✓
+joined_at
+created_at ✓
+
+Guild:
+Guild id ✓
+Name ✓
+crated_at ✓
+
+counting_user:
+user_id ✓
+wie oft insgesamt gezählt ✓
+wieviele fehler ✓
+wann zuletzt gezählt ✓
+average Count reaction -> errechnet sich aus der Uhrzeit an der der user gezählt hat und an welcher die letzte nummer gezählt wurde ✓
+User Punkte anhand der Count reaction -> Desto schneller man reagiert desto mehr punkte bekommt der user, aber auch der gesamt Guild ✓
+
+
+couting_guild:
+guild_id
+last counted number
+last counted user
+guild punkte
+average guild reaction time
+checkpoint -> Also bei welcher Zahl der Checkpoint ist
+
+
+
+
+
+Punkteberechnung (Beispiel)
+points = max(0, 5000 - reaction_time_ms)
+
+
+Oder logarithmisch (fairer):
+
+points = round(1000 / log10(reaction_time_ms + 10))
+
+
+
+
+Laufender Average (ohne alle Werte zu speichern)
+
+Sehr effizient und perfekt für Games/Bots.
+
+Du speicherst nur:
+
+reaction_count → Anzahl der Reaktionen
+
+avg_count_reaction_time → aktueller Durchschnitt
+
+Formel beim neuen Wert
+new_avg =
+(old_avg * reaction_count + new_reaction_time)
+/ (reaction_count + 1)
+
+Danach:
+reaction_count += 1
+
+
+👉 Kein Verlust an Genauigkeit, wenn du mit ms arbeitest.
+
+🧠 Beispiel
+old_avg = 1200 ms
+reaction_count = 4
+new_reaction = 800 ms
+
+new_avg = (1200*4 + 800) / 5
+        = 1120 MS
+
+
+
+
+
+
+   Ich mache eine Applikation mit einer Datenbank, wichtig ist das es mir nur um die Datenbank geht. Die Applikation ist wo nutzer abwechselnd hochzählen. Einer Nutzer darf nicht direkt hintereinanderzählen. Ich will nur wissen worauf 
+   ich achten muss. Keine datenbankschemen oder code nennen.
+
+
+Verstanden 👍 – nur konzeptionelle Punkte, keine Schemas, kein Code.
+
+Wenn es dir nur um die Datenbank-Logik für „abwechselnd hochzählen“ geht, solltest du auf folgende Dinge achten:
+
+1. Konsistenz bei gleichzeitigen Zugriffen
+
+Mehrere Nutzer können fast gleichzeitig zählen wollen.
+
+Wichtig:
+
+Zwei Nutzer dürfen nicht denselben Zählwert erzeugen
+
+Der Zähler darf keine Zahl überspringen oder doppelt vergeben
+
+→ Du brauchst atomare Operationen bzw. Transaktionen, damit „lesen + erhöhen + speichern“ untrennbar ist.
+
+2. Sperren / Race Conditions
+
+Das Kernproblem ist eine klassische Race Condition.
+
+Achte darauf:
+
+Während ein Nutzer zählt, darf kein anderer denselben Zustand verändern
+
+Die Datenbank muss entscheiden, wer zuerst war, nicht die App
+
+→ Verlass dich nicht auf Logik im Frontend oder in der Anwendung allein.
+
+3. Letzter Zähler
+
+Um zu verhindern, dass ein Nutzer zweimal hintereinander zählt, brauchst du zuverlässig:
+
+Wer zuletzt gezählt hat
+
+Diese Information muss immer aktuell und eindeutig sein
+
+Wichtig:
+
+Diese Prüfung und das Hochzählen müssen in einem einzigen konsistenten Schritt passieren
+(sonst kann Nutzer A zweimal durchrutschen)
+
+4. Fehlertoleranz
+
+Überlege:
+
+Was passiert, wenn ein Nutzer den Vorgang startet, aber die Verbindung abbricht?
+
+Was, wenn ein Fehler nach dem Hochzählen, aber vor der Bestätigung passiert?
+
+→ Die Datenbank sollte danach in einem gültigen Zustand sein.
+
+5. Isolation zwischen Aktionen
+
+Achte auf:
+
+Gleichzeitige Lesevorgänge, die einen veralteten Stand sehen
+
+Nutzer, die „denken“, sie dürfen zählen, obwohl es inzwischen jemand anderes getan hat
+
+→ Isolation ist wichtiger als Geschwindigkeit.
+
+6. Eindeutige Reihenfolge
+
+Die Reihenfolge der Zählungen muss:
+
+eindeutig
+
+nicht manipulierbar
+
+nicht von Client-Zeit abhängig
+
+sein.
+
+→ Die Datenbank sollte die Reihenfolge bestimmen, nicht der Nutzer.
+
+7. Skalierung & Fairness
+
+Falls viele Nutzer:
+
+Darf niemand den Zähler „blockieren“
+
+Schnelle Nutzer dürfen langsame nicht dauerhaft verdrängen
+
+→ Die Logik sollte fair und deterministisch sein.
+
+8. Vertrauen
+
+Ganz wichtig:
+
+Traue keinem Client
+
+Ein Nutzer darf nicht behaupten, er sei nicht der letzte gewesen
+
+→ Die Datenbank ist die einzige Quelle der Wahrheit.
+
+Kurz gesagt
+
+Dein Hauptfokus sollte auf:
+
+Atomarität
+
+Transaktionssicherheit
+
+Race-Condition-Vermeidung
+
+Zentraler Zustandskontrolle in der DB
+
+liegen.
+
+Wenn du willst, kann ich dir als Nächstes:
+
+typische Denkfehler bei so einem System erklären
+
+oder das Ganze aus Sicht von “Was geht schief, wenn man es falsch macht” analysieren
+
+
+      Also bei 1. mache ich mir die atomarität zu nutze da die transaktion den zugriff auf den vpn ihr verwendeten Teil der Datenbank sperrt?
+
+
+Ja, genau! 👍 Du denkst da in die richtige Richtung, aber lass uns das präzise auseinandernehmen, damit nichts schiefgeht.
+
+1️⃣ Atomarität und Transaktionen
+
+
+Eine Transaktion garantiert: Alle enthaltenen Schritte passieren als Einheit – entweder alles oder nichts.
+
+
+Für dein Szenario: „Prüfe, wer zuletzt gezählt hat → Erhöhe Zähler → Speichere neuen Nutzer als letzten Zähler“
+muss atomar sein.
+
+
+Ohne Atomarität könnten zwei Nutzer fast gleichzeitig prüfen, dass sie nicht zuletzt gezählt haben, und dann beide hochzählen → Doppelte Zahl.
+
+
+
+2️⃣ Sperren (Locking)
+
+
+Datenbanken sperren beim Schreiben automatisch die betroffenen Zeilen oder Tabellen (je nach Isolation Level).
+
+
+In deinem Fall:
+
+
+Du musst die Zeile, die den letzten Zähler/Nutzer hält, während der Transaktion sperren.
+
+
+Dann kann kein anderer Nutzer parallel dieselbe Zeile ändern, bis die Transaktion abgeschlossen ist.
+
+
+
+
+Viele relationale DBs (Postgres, MySQL) machen das automatisch, wenn du die Zeile in einer “SELECT … FOR UPDATE”-Art Operation liest.
+
+
+
+3️⃣ Isolation vs. Performance
+
+
+Isolation Level steuert, wie stark Transaktionen einander „sehen“:
+
+
+Read Committed → Du siehst nur bestätigte Daten, geringe Sperren, kleine Chance auf Race Condition
+
+
+Serializable → Strengste Isolation, garantiert keine Konflikte, kann aber mehr blockieren
+
+
+
+
+Für dein Szenario: Höhere Isolation lohnt sich, weil korrekte Reihenfolge wichtiger ist als Geschwindigkeit.
+
+
+
+4️⃣ Zusammenfassung
+Also ja, die Sperre erfolgt implizit durch die Transaktion, aber:
+
+
+Du musst sicherstellen, dass genau die Zeile gelesen und gesperrt wird, die den letzten Zähler speichert.
+
+
+Alles andere (z.B. Zähler erhöhen, neuen Nutzer speichern) passiert in derselben Transaktion.
+
+
+
+Wenn du willst, kann ich dir eine kleine Skizze des Ablaufs aus DB-Sicht zeichnen, ohne Code, nur um zu zeigen, wie die Sperren und die Atomarität zusammenwirken. Das macht das ganze Prinzip sehr klar. Willst du, dass ich das mache?
