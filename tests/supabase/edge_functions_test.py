@@ -6,12 +6,12 @@ dotenv.load_dotenv()
 
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_ROLE_KEY"))
 
-# response = supabase.functions.invoke(
-#     "create-guild",
-#     invoke_options={
-#         "body": { "guild_id": "5", "name": "Darkunity", "created_at": "2025-12-14" }
-#     }
-# )
+response = supabase.functions.invoke(
+    "create-guild",
+    invoke_options={
+        "body": { "guild_id": "5", "name": "Darkunity", "created_at": "2025-12-14" }
+    }
+)
 
 # response = supabase.functions.invoke(
 #     "create-guilds",
