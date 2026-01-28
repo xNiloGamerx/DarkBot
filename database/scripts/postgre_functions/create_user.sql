@@ -2,12 +2,12 @@ create or replace function create_user(p_data jsonb)
 returns jsonb
 as $$
 declare
-  guild_id bigint;
+  res_guild_id bigint;
   res_id bigint;
 begin
   -- select guild id from given guild_id
   select id
-  into guild_id
+  into res_guild_id
   from "guild"
   where guild_id = p_data->>'guild_id';
 
@@ -17,6 +17,9 @@ begin
       'status', 'not found'
     );
   end if;
+
+  raise notice 'guild_id: %', res_guild_id;
+  raise notice 'res_id: %', res_id;
 
   insert into "user" (user_id, username, display_name, created_at)
   values (
@@ -36,8 +39,8 @@ begin
   end if;
 
   insert into "user_guild" (user_id, guild_id, joined_at)
-  values (res_id, guild_id, (p_data->>'joined_at')::timestamptz)
-  on conflict (user_id, guild_id) do nothing;
+  values (res_id, res_guild_id, (p_data->>'joined_at')::timestamptz)
+  on conflict (id) do nothing;
 
   return jsonb_build_object(
     'id', res_id,

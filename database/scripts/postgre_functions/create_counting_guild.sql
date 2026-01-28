@@ -2,13 +2,13 @@ create or replace function create_counting_guild(p_data jsonb)
 returns jsonb
 as $$
 declare
-  guild_id bigint;
-  channel_id bigint;
+  res_guild_id bigint;
+  res_channel_id bigint;
   res_id bigint;
 begin
   -- select guild id from given guild_id
   select id
-  into guild_id
+  into res_guild_id
   from "guild"
   where guild_id = p_data->>'guild_id';
 
@@ -21,7 +21,7 @@ begin
 
   -- select guild id from given guild_id
   select id
-  into channel_id
+  into res_channel_id
   from "channel"
   where channel_id = p_data->>'channel_id';
 
@@ -33,7 +33,8 @@ begin
   end if;
 
   insert into "counting_guild" (guild_id, channel_id)
-  values (guild_id, channel_id);
+  values (res_guild_id, res_channel_id)
+  returning id into res_id;
 
   return jsonb_build_object(
     'id', res_id,
