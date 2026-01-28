@@ -22,7 +22,7 @@ class RegisterMember:
                 }
             }
         )
-        print(f"Guild registered. (Response: {response})")
+        print(f"Member registered. (Response: {response})")
         return response
 
     def register_members(self, members: list[Member]):

@@ -8,6 +8,8 @@ import os
 import signal
 import sys
 
+from api.connection import SupabaseConnection
+
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
 
@@ -20,9 +22,12 @@ intents.members = True
 
 extensions = [
     "cogs.core.startup",
+    "cogs.members.events",
 ]
 
 bot = commands.Bot(command_prefix='$', intents=intents)
+
+bot.supabase_connection = SupabaseConnection()._create_connection()
 
 @bot.command()
 async def ping(ctx):

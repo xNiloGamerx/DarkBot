@@ -7,6 +7,7 @@ from api.member.register_member import RegisterMember
 class Startup(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.connection = bot.supabase_connection
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -14,14 +15,12 @@ class Startup(commands.Cog):
         print('------')
         print()
 
-        connection = SupabaseConnection()._create_connection()
+        # register_guild = RegisterGuild(self.connection)
+        # register_guild.register_guilds(self.bot.guilds)
 
-        register_guild = RegisterGuild(connection)
-        register_guild.register_guilds(self.bot.guilds)
-
-        register_member = RegisterMember(connection)
-        for guild in self.bot.guilds:
-            register_member.register_members(guild.members)
+        # register_member = RegisterMember(self.connection)
+        # for guild in self.bot.guilds:
+        #     register_member.register_members(guild.members)
 
 
 async def setup(bot):
