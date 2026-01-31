@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+from utils.counting.reactions import Reactions
 from utils.counting.validator import Validator
 
 class NewNumber(commands.Cog):
@@ -8,7 +9,12 @@ class NewNumber(commands.Cog):
         self.bot = bot
         self.connection = bot.supabase_connection
         self.validator = Validator(self.connection)
-        
+
+    async def make_success_message(self, message: discord.Message):
+        pass
+
+    async def make_fail_message(self, message: discord.Message):
+        pass
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -25,9 +31,18 @@ class NewNumber(commands.Cog):
                 return
 
             result_new_number = self.validator.is_new_number(guild, author, int(message.content))
-            print(f"Result of is_new_number: {result_new_number}")
+            if result_new_number:
+                await self.make_success_message(message)
+            else:
+                await self.make_fail_message(message)
         except Exception as e:
             print(f"Error in on_message: {e}")
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        print(f"Got message {message.content} in Channel {message.channel.name}")
+        await Reactions.add_check_mark_reaction(message)
+        await Reactions.add_points_reaction(message, int(message.content))
 
 
 async def setup(bot):

@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from api.channel.register_channel import RegisterChannel
 from api.counting.register_counting_guild import RegisterCountingGuild
-from cogs.counting.utils.new_counting_embed import NewCountingEmbed
+from utils.counting.new_counting_embed import NewCountingEmbed
 
 class CountingCommands(commands.Cog):
     def __init__(self, bot):
