@@ -34,6 +34,8 @@ begin
 
   insert into "counting_guild" (guild_id, channel_id)
   values (res_guild_id, res_channel_id)
+  on conflict (guild_id) do update
+  set guild_id = excluded.guild_id
   returning id into res_id;
 
   return jsonb_build_object(

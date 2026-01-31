@@ -23,6 +23,8 @@ intents.members = True
 extensions = [
     "cogs.core.startup",
     "cogs.members.events",
+    "cogs.counting.commands.counting_commands",
+    "cogs.counting.events.new_number",
 ]
 
 bot = commands.Bot(command_prefix='$', intents=intents)
