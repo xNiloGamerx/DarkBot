@@ -1,6 +1,11 @@
 import discord
 from discord.ext import commands
 
+from datetime import datetime, timezone
+
+from api.counting.counting_guild import CountingGuild
+from api.counting.counting_user import CountingUser
+from utils.counting.calculation import Calculation
 from utils.counting.reactions import Reactions
 from utils.counting.validator import Validator
 
@@ -9,18 +14,62 @@ class NewNumber(commands.Cog):
         self.bot = bot
         self.connection = bot.supabase_connection
         self.validator = Validator(self.connection)
+        self.calculation = Calculation()
+        self.counting_user = CountingUser(self.connection)
+        self.counting_guild = CountingGuild(self.connection)
 
-    async def make_success_message(self, message: discord.Message):
-        pass
+    async def on_right_number(self, message: discord.Message, counting_guild_data: dict):
+        content = message.content
+        author = message.author
+        guild = message.guild
+        channel = message.channel
+        
+        await Reactions.add_check_mark_reaction(message)
+        
+        counting_user = self.counting_user.get_or_create(guild, author)
+        print(counting_user)
+        print(counting_guild_data)
+        try:
+            # Daten von Counting user abfragen
+            old_avg = counting_user.get("out_avg_count_reaction_time", None)
+            count_total = counting_user.get("out_count_total", 0)
+            last_counted_at: datetime = datetime.fromisoformat(counting_guild_data.get("out_last_counted_at", None)).astimezone(timezone.utc)
 
-    async def make_fail_message(self, message: discord.Message):
-        pass
+            # Reaction Time average berechnen
+            last_counted_at_timestamp = last_counted_at.timestamp() * 1000
+            reaction_time =  message.created_at.timestamp() * 1000 - last_counted_at_timestamp
+            new_avg = self.calculation.calculate_counting_avg(old_avg, count_total, reaction_time)
+            
+            # Punkte anhand der reaction time berechnen
+            points = self.calculation.calculate_counting_points(reaction_time)
+
+            # Neue Werte erstellen und speichern
+            new_count_total = counting_user.get("count_total", 0) + 1
+            new_last_counted_at = message.created_at.astimezone(timezone.utc).isoformat()
+
+            self.counting_user.update(
+                counting_user.get("out_id"),
+                count_total=new_count_total,
+                avg_count_reaction_time=int(new_avg),
+                count_points=counting_user.get("count_points", 0) + points,
+                last_counted_at=new_last_counted_at
+            )
+        except Exception as e:
+            print(f"Error in on_right_number calculation: {e}")
+        # Ich brauche last counted auch beim guild da ich sonst den wert von avg_count_reaction_time nicht berechnen kann weil wenn ein user neu kommt hat er noch keine und da muss ich nochmal überlegen
+
+    async def on_wrong_number(self, message: discord.Message):
+        await Reactions.add_cross_mark_reaction(message)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         try:
-            print(f"Got message {message.content} in Channel {message.channel.name}")
-            
+            content = message.content
+            if not content.isnumeric():
+                return
+
+            print(f"Got message {content} in Channel {message.channel.name}")
+
             author = message.author
             if author.bot:
                 return
@@ -30,19 +79,21 @@ class NewNumber(commands.Cog):
             if not self.validator.is_counting_channel(guild, channel):
                 return
 
-            result_new_number = self.validator.is_new_number(guild, author, int(message.content))
+            counting_guild_data = self.counting_guild.get(guild)
+            print(counting_guild_data.get("out_last_counted_at", None))
+            result_new_number = self.validator.is_new_number(guild, author, int(content))
             if result_new_number:
-                await self.make_success_message(message)
+                await self.on_right_number(message, counting_guild_data)
             else:
-                await self.make_fail_message(message)
+                await self.on_wrong_number(message)
         except Exception as e:
             print(f"Error in on_message: {e}")
 
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        print(f"Got message {message.content} in Channel {message.channel.name}")
-        await Reactions.add_check_mark_reaction(message)
-        await Reactions.add_points_reaction(message, int(message.content))
+    # @commands.Cog.listener()
+    # async def on_message(self, message: discord.Message):
+    #     print(f"Got message {message.content} in Channel {message.channel.name}")
+    #     await Reactions.add_check_mark_reaction(message)
+    #     await Reactions.add_points_reaction(message, int(message.content))
 
 
 async def setup(bot):

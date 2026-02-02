@@ -1,5 +1,6 @@
 create or replace function new_number(p_data jsonb)
 returns jsonb
+set search_path = public
 as $$
 declare
   res_guild_id bigint;
@@ -7,6 +8,8 @@ declare
   res_last_counted_number bigint;
   res_user_id bigint;
 begin
+  SET TIME ZONE 'UTC';
+
   -- select guild id from given guild_id
   select id
   into res_guild_id
@@ -24,11 +27,11 @@ begin
   select id
   into res_user_id
   from "user"
-  where user_id = (p_data->>'last_counted_user_id')::text;
+  where user_id = (p_data->>'counted_user_id')::text;
 
   if not found then
     return jsonb_build_object(
-      'message', 'Last counted user not in user table',
+      'message', 'Counted user not in user table',
       'result', false,
       'status', 'not found'
     );
@@ -44,7 +47,7 @@ begin
   raise notice 'res_user_id=% res_last_user_id=%',
     res_user_id, res_last_counted_user_id;
 
-  if res_last_counted_user_id = (p_data->>'last_counted_user_id')::text then
+  if res_last_counted_user_id = (p_data->>'counted_user_id')::text then
     return jsonb_build_object(
       'message', 'Last counted user equals currently counted user',
       'result', false,
@@ -72,6 +75,10 @@ begin
   
   update "counting_guild"
     set last_counted_number = last_counted_number + 1
+    where "counting_guild".guild_id = res_guild_id;
+  
+  update "counting_guild"
+    set last_counted_at = now()
     where "counting_guild".guild_id = res_guild_id;
 
   return jsonb_build_object(
