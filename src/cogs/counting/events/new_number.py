@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 
 from api.counting.counting_guild import CountingGuild
 from api.counting.counting_user import CountingUser
+from api.counting.wrong_number import WrongNumber
 from utils.counting.calculation import Calculation
 from utils.counting.reactions import Reactions
 from utils.counting.validator import Validator
@@ -17,16 +18,20 @@ class NewNumber(commands.Cog):
         self.calculation = Calculation()
         self.counting_user = CountingUser(self.connection)
         self.counting_guild = CountingGuild(self.connection)
+        self.wrong_number = WrongNumber(self.connection)
 
-    async def on_right_number(self, message: discord.Message, counting_guild_data: dict):
+        self.counting_channel_cache = {}
+
+    async def on_right_number(self, message: discord.Message):
+        await Reactions.add_check_mark_reaction(message)
+
         content = message.content
         author = message.author
         guild = message.guild
         channel = message.channel
         
-        await Reactions.add_check_mark_reaction(message)
-        
         counting_user = self.counting_user.get_or_create(guild, author)
+        counting_guild_data = self.counting_guild.get(guild)
         print(counting_user)
         print(counting_guild_data)
         try:
@@ -51,15 +56,26 @@ class NewNumber(commands.Cog):
                 counting_user.get("out_id"),
                 count_total=new_count_total,
                 avg_count_reaction_time=int(new_avg),
-                count_points=counting_user.get("count_points", 0) + points,
+                count_points=counting_user.get("out_count_points", 0) + points,
                 last_counted_at=new_last_counted_at
+            )
+            self.counting_guild.update(
+                counting_guild_data.get("out_id"),
+                count_points=counting_guild_data.get("out_count_points", 0) + points
             )
         except Exception as e:
             print(f"Error in on_right_number calculation: {e}")
-        # Ich brauche last counted auch beim guild da ich sonst den wert von avg_count_reaction_time nicht berechnen kann weil wenn ein user neu kommt hat er noch keine und da muss ich nochmal überlegen
 
     async def on_wrong_number(self, message: discord.Message):
         await Reactions.add_cross_mark_reaction(message)
+        
+        guild = message.guild
+
+        counting_guild_data = self.counting_guild.get(guild)
+
+        self.wrong_number.run(
+            counting_guild_data.get("out_id")
+        )
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -76,14 +92,17 @@ class NewNumber(commands.Cog):
             guild = message.guild
             channel = message.channel
 
-            if not self.validator.is_counting_channel(guild, channel):
-                return
+            if guild.id not in self.counting_channel_cache:
+                if not self.validator.is_counting_channel(guild, channel):
+                    return
+                self.counting_channel_cache[guild.id] = channel.id
+            else:
+                if self.counting_channel_cache[guild.id] != channel.id:
+                    return
 
-            counting_guild_data = self.counting_guild.get(guild)
-            print(counting_guild_data.get("out_last_counted_at", None))
             result_new_number = self.validator.is_new_number(guild, author, int(content))
             if result_new_number:
-                await self.on_right_number(message, counting_guild_data)
+                await self.on_right_number(message)
             else:
                 await self.on_wrong_number(message)
         except Exception as e:

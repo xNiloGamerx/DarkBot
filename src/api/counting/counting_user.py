@@ -43,4 +43,4 @@ class CountingUser:
             }
         )
         print(f"User Counting update result: {response}")
-        return json.loads(response.decode())[0]
+        return json.loads(response.decode())
