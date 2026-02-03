@@ -41,15 +41,14 @@ class NewNumber(commands.Cog):
             last_counted_at: datetime = datetime.fromisoformat(counting_guild_data.get("out_last_counted_at", None)).astimezone(timezone.utc)
 
             # Reaction Time average berechnen
-            last_counted_at_timestamp = last_counted_at.timestamp() * 1000
-            reaction_time =  message.created_at.timestamp() * 1000 - last_counted_at_timestamp
+            last_counted_at_timestamp = last_counted_at.timestamp()
+            reaction_time =  message.created_at.astimezone(timezone.utc).timestamp() * 1000 - last_counted_at_timestamp * 1000
             new_avg = self.calculation.calculate_counting_avg(old_avg, count_total, reaction_time)
-            
             # Punkte anhand der reaction time berechnen
             points = self.calculation.calculate_counting_points(reaction_time)
 
             # Neue Werte erstellen und speichern
-            new_count_total = counting_user.get("count_total", 0) + 1
+            new_count_total = count_total + 1
             new_last_counted_at = message.created_at.astimezone(timezone.utc).isoformat()
 
             self.counting_user.update(
@@ -61,7 +60,8 @@ class NewNumber(commands.Cog):
             )
             self.counting_guild.update(
                 counting_guild_data.get("out_id"),
-                count_points=counting_guild_data.get("out_count_points", 0) + points
+                count_points=counting_guild_data.get("out_count_points", 0) + points,
+                last_counted_at=message.created_at.astimezone(timezone.utc).isoformat()
             )
         except Exception as e:
             print(f"Error in on_right_number calculation: {e}")
@@ -102,9 +102,9 @@ class NewNumber(commands.Cog):
 
             result_new_number = self.validator.is_new_number(guild, author, int(content))
             if result_new_number:
-                await self.on_right_number(message)
+                self.on_right_number(message)
             else:
-                await self.on_wrong_number(message)
+                self.on_wrong_number(message)
         except Exception as e:
             print(f"Error in on_message: {e}")
 

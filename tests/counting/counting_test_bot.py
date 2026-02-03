@@ -1,5 +1,14 @@
+from email import message
 import discord
 from discord.ext import commands
+
+from dotenv import load_dotenv
+import os
+
+import time
+
+load_dotenv()
+token = os.getenv("COUNTING_TEST_BOT_TOKEN")
 
 import signal
 import sys
@@ -15,10 +24,11 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    if message.content.startswith('hello'):
-        await message.channel.send(f'Hello {message.author.name}!')
-
-    await bot.process_commands(message)
+    content: str = message.content
+    
+    if content.isnumeric():
+        time.sleep(2)
+        await message.channel.send(int(content) + 1)
 
 def shutdown_handler(sig, frame):
     print("Bot wird beendet...")
@@ -31,4 +41,4 @@ def shutdown_handler(sig, frame):
 signal.signal(signal.SIGINT, shutdown_handler)   # Ctrl+C
 signal.signal(signal.SIGTERM, shutdown_handler)  # kill
 
-bot.run(token, log_handler=handler, log_level=logging.DEBUG)
+bot.run(token)
