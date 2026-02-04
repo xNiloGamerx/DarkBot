@@ -9,6 +9,7 @@ from api.counting.wrong_number import WrongNumber
 from utils.counting.calculation import Calculation
 from utils.counting.reactions import Reactions
 from utils.counting.validator import Validator
+from utils.numbers import Numbers
 
 class NewNumber(commands.Cog):
     def __init__(self, bot):
@@ -43,9 +44,10 @@ class NewNumber(commands.Cog):
             # Reaction Time average berechnen
             last_counted_at_timestamp = last_counted_at.timestamp()
             reaction_time =  message.created_at.astimezone(timezone.utc).timestamp() * 1000 - last_counted_at_timestamp * 1000
+            print(reaction_time)
             new_avg = self.calculation.calculate_counting_avg(old_avg, count_total, reaction_time)
             # Punkte anhand der reaction time berechnen
-            points = self.calculation.calculate_counting_points(reaction_time)
+            points = int(Numbers.make_digits_unique(self.calculation.calculate_counting_points(reaction_time)))
 
             # Neue Werte erstellen und speichern
             new_count_total = count_total + 1
@@ -63,6 +65,8 @@ class NewNumber(commands.Cog):
                 count_points=counting_guild_data.get("out_count_points", 0) + points,
                 last_counted_at=new_last_counted_at
             )
+
+            await Reactions.add_points_reaction(message, points)
         except Exception as e:
             print(f"Error in on_right_number calculation: {e}")
 
