@@ -9,10 +9,10 @@ class WrongNumber:
     def __init__(self, connection: Client):
         self.connection = connection
 
-    def run(self, counting_guild_id: int) -> bool:
+    async def run(self, counting_guild_id: int) -> bool:
         # Logic to check if a channel is a counting channel in the database
         print(f"\n\nRun Wrong Number routine, set last_counted_number to checkpoint and last_counted_user_id to none and checkpoint to 0 for Counting Guild ID: {counting_guild_id}...")
-        response = self.connection.functions.invoke(
+        response = await self.connection.functions.invoke(
             "wrong-number",
             invoke_options={
                 "body": {

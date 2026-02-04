@@ -9,10 +9,10 @@ class CountingGuild:
     def __init__(self, connection: Client):
         self.connection = connection
 
-    def get(self, guild: Guild) -> bool:
+    async def get(self, guild: Guild) -> bool:
         # Logic to check if a channel is a counting channel in the database
         print(f"\n\nGetting counting guild for Guild ID: {guild.id}")
-        response = self.connection.functions.invoke(
+        response = await self.connection.functions.invoke(
             "get-counting-guild",
             invoke_options={
                 "body": {
@@ -23,12 +23,12 @@ class CountingGuild:
         print(f"Counting guild get result: {response}")
         return json.loads(response.decode())[0]
 
-    def update(self, id: int, last_counted_number: int | None = None, last_counted_user_id: int | None = None, count_checkpoint: int | None = None, count_points: int | None = None, last_counted_at: str | None = None):
+    async def update(self, id: int, last_counted_number: int | None = None, last_counted_user_id: int | None = None, count_checkpoint: int | None = None, count_points: int | None = None, last_counted_at: str | None = None):
         if not id:
             raise ValueError(f"{__file__}: ID is required to update Counting Guild.")
 
         print(f"\n\nUpdating counting guild for Counting Guild ID: {id}")
-        response = self.connection.functions.invoke(
+        response = await self.connection.functions.invoke(
             "update-counting-guild",
             invoke_options={
                 "body": {

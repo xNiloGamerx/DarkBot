@@ -30,8 +30,8 @@ class NewNumber(commands.Cog):
         guild = message.guild
         channel = message.channel
         
-        counting_user = self.counting_user.get_or_create(guild, author)
-        counting_guild_data = self.counting_guild.get(guild)
+        counting_user = await self.counting_user.get_or_create(guild, author)
+        counting_guild_data = await self.counting_guild.get(guild)
         print(counting_user)
         print(counting_guild_data)
         try:
@@ -51,14 +51,14 @@ class NewNumber(commands.Cog):
             new_count_total = count_total + 1
             new_last_counted_at = message.created_at.astimezone(timezone.utc).isoformat()
 
-            self.counting_user.update(
+            await self.counting_user.update(
                 counting_user.get("out_id"),
                 count_total=new_count_total,
                 avg_count_reaction_time=int(new_avg),
                 count_points=counting_user.get("out_count_points", 0) + points,
                 last_counted_at=new_last_counted_at
             )
-            self.counting_guild.update(
+            await self.counting_guild.update(
                 counting_guild_data.get("out_id"),
                 count_points=counting_guild_data.get("out_count_points", 0) + points,
                 last_counted_at=message.created_at.astimezone(timezone.utc).isoformat()
@@ -71,9 +71,9 @@ class NewNumber(commands.Cog):
         
         guild = message.guild
 
-        counting_guild_data = self.counting_guild.get(guild)
+        counting_guild_data = await self.counting_guild.get(guild)
 
-        self.wrong_number.run(
+        await self.wrong_number.run(
             counting_guild_data.get("out_id")
         )
 
@@ -93,18 +93,18 @@ class NewNumber(commands.Cog):
             channel = message.channel
 
             if guild.id not in self.counting_channel_cache:
-                if not self.validator.is_counting_channel(guild, channel):
+                if not await self.validator.is_counting_channel(guild, channel):
                     return
                 self.counting_channel_cache[guild.id] = channel.id
             else:
                 if self.counting_channel_cache[guild.id] != channel.id:
                     return
 
-            result_new_number = self.validator.is_new_number(guild, author, int(content))
+            result_new_number = await self.validator.is_new_number(guild, author, int(content))
             if result_new_number:
-                self.on_right_number(message)
+                await self.on_right_number(message)
             else:
-                self.on_wrong_number(message)
+                await self.on_wrong_number(message)
         except Exception as e:
             print(f"Error in on_message: {e}")
 
