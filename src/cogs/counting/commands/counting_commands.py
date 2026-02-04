@@ -4,6 +4,7 @@ from discord.ext import commands
 
 from api.channel.register_channel import RegisterChannel
 from api.counting.register_counting_guild import RegisterCountingGuild
+from cogs.counting.shop.counting_shop import CountingShop
 from utils.counting.embeds import Embeds
 
 class CountingCommands(commands.Cog):
@@ -12,6 +13,7 @@ class CountingCommands(commands.Cog):
         self.connection = bot.supabase_connection
         self.register_channel = RegisterChannel(self.connection)
         self.register_counting_guild = RegisterCountingGuild(self.connection)
+        self.shop = CountingShop(self.bot)
     
     counting = app_commands.Group(
         name="counting", 
@@ -40,6 +42,13 @@ class CountingCommands(commands.Cog):
         )
 
         await Embeds.send_new_counting_embed(self.bot, selected_channel)
+
+    @counting.command(name="shop", description="Öffnet den Counting Shop.")
+    async def shop(
+        self,
+        interaction: discord.Interaction
+    ):
+        await self.shop.open(interaction)
 
     @counting.command(name="test_embed", description="Neues Counting embed testen.")
     async def test_embed(

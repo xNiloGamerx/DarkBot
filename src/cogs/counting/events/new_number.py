@@ -12,8 +12,8 @@ from utils.counting.validator import Validator
 from utils.numbers import Numbers
 
 class NewNumber(commands.Cog):
-    def __init__(self, bot):
-        self.bot: commands.Bot = bot
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
         self.connection = bot.supabase_connection
         self.validator = Validator(self.connection)
         self.calculation = Calculation()
