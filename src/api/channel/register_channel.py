@@ -6,10 +6,10 @@ class RegisterChannel:
     def __init__(self, connection: SupabaseConnection):
         self.connection = connection
 
-    def register_channel(self, channel: TextChannel):
+    async def register_channel(self, channel: TextChannel):
         # Logic to register a channel in the database
         print(f"\n\nRegistering channel: {channel.name} (ID: {channel.id})")
-        response = self.connection.functions.invoke(
+        response = await self.connection.functions.invoke(
             "create-channel",
             invoke_options={
                 "body": {

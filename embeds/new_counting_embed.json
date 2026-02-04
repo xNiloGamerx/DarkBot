@@ -1,0 +1,41 @@
+{
+  "content": "",
+  "tts": false,
+  "embeds": [
+    {
+      "id": 652627557,
+      "title": "🔢 Counting wurde im Channel gestartet",
+      "description": "Ab jetzt kann jeder im <#1466161855335497892>-Channel zählen.\nDer erste Nutzer muss eine **1** schreiben um loszulegen!\nViel Spaß und viel Erfolg! 🍀\n\n",
+      "color": 2326507,
+      "fields": [
+        {
+          "id": 457837737,
+          "name": "📜 Die Spielregeln",
+          "value": "• **Abwechselnd zählen:** Du darfst nicht zweimal hintereinander eine Zahl schreiben.\n• **Text ist erlaubt:** Zwischen den Zahlen kann text geschrieben werden.\n• **Konzentration:** Ein Fehler und es wird beim letzten Checkpoint neu gestartet!\n\n"
+        },
+        {
+          "id": 907440412,
+          "name": "⚡ Speed-Bonus",
+          "value": "Je **schneller** du reagierst, desto **mehr Punkte** gibt es!",
+          "inline": true
+        },
+        {
+          "id": 827374580,
+          "name": "🛡️ Checkpoints",
+          "value": "Nutze deine Punkte, um Checkpoints zu kaufen und euren Fortschritt zu sichern.\nDer Checkpoint ist am Anfang bei **0**.",
+          "inline": true
+        }
+      ],
+      "author": {
+        "name": "DarkBot#23522"
+      },
+      "timestamp": "2026-02-05T23:00:00.000Z",
+      "footer": {
+        "text": "Counting - DarkBot"
+      }
+    }
+  ],
+  "components": [],
+  "actions": {},
+  "flags": 0
+}

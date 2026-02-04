@@ -12,7 +12,7 @@ from utils.counting.validator import Validator
 
 class NewNumber(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self.connection = bot.supabase_connection
         self.validator = Validator(self.connection)
         self.calculation = Calculation()
@@ -29,7 +29,7 @@ class NewNumber(commands.Cog):
         author = message.author
         guild = message.guild
         channel = message.channel
-        
+
         counting_user = await self.counting_user.get_or_create(guild, author)
         counting_guild_data = await self.counting_guild.get(guild)
         print(counting_user)
@@ -38,7 +38,7 @@ class NewNumber(commands.Cog):
             # Daten von Counting user abfragen
             old_avg = counting_user.get("out_avg_count_reaction_time", None)
             count_total = counting_user.get("out_count_total", 0)
-            last_counted_at: datetime = datetime.fromisoformat(counting_guild_data.get("out_last_counted_at", None)).astimezone(timezone.utc)
+            last_counted_at: datetime = datetime.fromisoformat(counting_guild_data.get("out_last_counted_at", None)).astimezone(timezone.utc) if counting_guild_data.get("out_last_counted_at", None) else message.created_at.astimezone(timezone.utc)
 
             # Reaction Time average berechnen
             last_counted_at_timestamp = last_counted_at.timestamp()
@@ -61,7 +61,7 @@ class NewNumber(commands.Cog):
             await self.counting_guild.update(
                 counting_guild_data.get("out_id"),
                 count_points=counting_guild_data.get("out_count_points", 0) + points,
-                last_counted_at=message.created_at.astimezone(timezone.utc).isoformat()
+                last_counted_at=new_last_counted_at
             )
         except Exception as e:
             print(f"Error in on_right_number calculation: {e}")
