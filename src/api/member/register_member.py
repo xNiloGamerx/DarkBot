@@ -1,15 +1,14 @@
 from discord import Member
-
-from api.connection import SupabaseConnection
+from supabase import Client
 
 class RegisterMember:
-    def __init__(self, connection: SupabaseConnection):
+    def __init__(self, connection: Client):
         self.connection = connection
 
-    def register_member(self, member: Member):
+    async def register_member(self, member: Member):
         # Logic to register the member in the database
         print(f"\n\nRegistering member: {member.name} (ID: {member.id})")
-        response = self.connection.functions.invoke(
+        binary_response = await self.connection.functions.invoke(
             "create-user",
             invoke_options={
                 "body": {
@@ -22,13 +21,14 @@ class RegisterMember:
                 }
             }
         )
+        response = binary_response.decode()
         print(f"Member registered. (Response: {response})")
         return response
 
-    def register_members(self, members: list[Member]):
+    async def register_members(self, members: list[Member]):
         # Logic to register the member in the database
         print("\n\nRegistering multiple members...")
-        response = self.connection.functions.invoke(
+        binary_response = await self.connection.functions.invoke(
             "create-users",
             invoke_options={
                 "body": [
@@ -44,6 +44,7 @@ class RegisterMember:
                 ]
             }
         )
+        response = binary_response.decode()
         print(f"Members registered. (Response: {response})")
         return response
     

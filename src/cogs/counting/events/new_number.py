@@ -6,10 +6,12 @@ from datetime import datetime, timezone
 from api.counting.counting_guild import CountingGuild
 from api.counting.counting_user import CountingUser
 from api.counting.wrong_number import WrongNumber
+from api.member.check_if_member_exists import CheckIfMemberExists
 from utils.counting.calculation import Calculation
 from utils.counting.reactions import Reactions
 from utils.counting.validator import Validator
 from utils.numbers import Numbers
+from utils.privay_policy import PrivacyPolicy
 
 class NewNumber(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -20,6 +22,8 @@ class NewNumber(commands.Cog):
         self.counting_user = CountingUser(self.connection)
         self.counting_guild = CountingGuild(self.connection)
         self.wrong_number = WrongNumber(self.connection)
+        self.check_if_member_exists = CheckIfMemberExists(self.connection)
+        self.privacy_policy = PrivacyPolicy(self.connection)
 
         self.counting_channel_cache = {}
 
@@ -93,6 +97,7 @@ class NewNumber(commands.Cog):
             author = message.author
             if author.bot:
                 return
+
             guild = message.guild
             channel = message.channel
 
@@ -103,6 +108,11 @@ class NewNumber(commands.Cog):
             else:
                 if self.counting_channel_cache[guild.id] != channel.id:
                     return
+                
+            if not await self.check_if_member_exists.check_if_member_exists(author):
+                await message.delete()
+                await self.privacy_policy.counting_privacy(author, channel)
+                return
 
             result_new_number = await self.validator.is_new_number(guild, author, int(content))
             if result_new_number:
