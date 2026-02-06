@@ -13,7 +13,7 @@ from api.connection import SupabaseConnection
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
 
-handler = logging.FileHandler(filename=r'C:\Users\nikb0\Documents\01_Programming\01_Projects\DarkBot\src\log\discord.log', encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename='./log/discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
 intents = discord.Intents.default()
