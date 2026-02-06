@@ -27,7 +27,6 @@ async def on_message(message):
     content: str = message.content
     
     if content.isnumeric():
-        time.sleep(2)
         await message.channel.send(int(content) + 1)
 
 def shutdown_handler(sig, frame):

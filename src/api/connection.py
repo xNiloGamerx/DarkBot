@@ -1,4 +1,4 @@
-from supabase import FunctionsHttpError, create_client
+from supabase import acreate_client, AsyncClient
 import dotenv
 import os
 
@@ -10,7 +10,7 @@ class SupabaseConnection:
         self.service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
     
     def _create_connection(self):
-        supabase = create_client(
+        supabase: AsyncClient = acreate_client(
             self.base_url, 
             self.service_role_key
         )

@@ -1,0 +1,11 @@
+{
+  "items": [
+    {
+      "emoji": "🛡️",
+      "name": "Checkpoint",
+      "description": "Speichert deinen Fortschritt im Spiel.",
+      "price_label": "15.000",
+      "price": 15000
+    }
+  ]
+}

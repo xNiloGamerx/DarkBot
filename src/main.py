@@ -29,8 +29,6 @@ extensions = [
 
 bot = commands.Bot(command_prefix='$', intents=intents)
 
-bot.supabase_connection = SupabaseConnection()._create_connection()
-
 @bot.command()
 async def ping(ctx):
     await ctx.send('pong')
@@ -47,6 +45,8 @@ async def on_message(message):
 
 @bot.event
 async def setup_hook():
+    bot.supabase_connection = await SupabaseConnection()._create_connection()
+
     for ext in extensions:
         await bot.load_extension(ext)
 

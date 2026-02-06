@@ -9,10 +9,10 @@ class IsCountingChannel:
     def __init__(self, connection: Client):
         self.connection = connection
 
-    def is_counting_channel(self, guild: Guild, channel: TextChannel) -> bool:
+    async def is_counting_channel(self, guild: Guild, channel: TextChannel) -> bool:
         # Logic to check if a channel is a counting channel in the database
         print(f"\n\nChecking if channel {channel.id} is a counting channel for Guild ID: {guild.id}...")
-        response = self.connection.functions.invoke(
+        response = await self.connection.functions.invoke(
             "is-counting-channel",
             invoke_options={
                 "body": {

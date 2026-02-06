@@ -6,10 +6,10 @@ class RegisterCountingGuild:
     def __init__(self, connection: SupabaseConnection):
         self.connection = connection
 
-    def register_counting_guild(self, guild: Guild, channel: TextChannel):
+    async def register_counting_guild(self, guild: Guild, channel: TextChannel):
         # Logic to register a counting guild in the database
         print(f"\n\nRegistering counting guild for Guild ID: {guild.id}, Channel ID: {channel.id}...")
-        response = self.connection.functions.invoke(
+        response = await self.connection.functions.invoke(
             "create-counting-guild",
             invoke_options={
                 "body": {

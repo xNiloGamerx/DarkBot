@@ -49,10 +49,24 @@ supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_
 #     }
 # )
 
+# response = supabase.functions.invoke(
+#     "create-counting-guild",
+#     invoke_options={
+#         "body": { "guild_id": "5", "channel_id": "5" }
+#     }
+# )
+
 response = supabase.functions.invoke(
-    "create-counting-guild",
+    "create-user",
     invoke_options={
-        "body": { "guild_id": "5", "channel_id": "5" }
+        "body": {
+            "user_id": "2", 
+            "username": "test", 
+            "display_name": "test2", 
+            "joined_at": "2025-12-10", 
+            "created_at": "2025-12-10",
+            "guild_id": "819152506294763520"
+        }
     }
 )
 
