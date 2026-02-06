@@ -25,7 +25,8 @@ class CountingCommands(commands.Cog):
     async def create(
         self,
         interaction: discord.Interaction,
-        channel: discord.TextChannel | None = None    
+        channel: discord.TextChannel | None = None,
+        create_info: bool = True
     ):
         selected_channel = channel or interaction.channel
 
@@ -41,7 +42,8 @@ class CountingCommands(commands.Cog):
             selected_channel
         )
 
-        await Embeds.send_new_counting_embed(self.bot, selected_channel)
+        if create_info:
+            await Embeds.send_new_counting_embed(self.bot, selected_channel)
 
     @counting.command(name="shop", description="Öffnet den Counting Shop.")
     async def shop(
