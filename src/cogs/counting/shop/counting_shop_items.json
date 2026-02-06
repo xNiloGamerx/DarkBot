@@ -6,20 +6,6 @@
       "description": "Speichert deinen Fortschritt im Spiel.",
       "price_label": "15.000",
       "price": 15000
-    },
-    {
-      "emoji": "❤️",
-      "name": "Liebe",
-      "description": "Liebe geben.",
-      "price_label": "17.300",
-      "price": 17300
-    },
-    {
-      "emoji": "👌",
-      "name": "Okay",
-      "description": "Okay geben.",
-      "price_label": "2.230",
-      "price": 2230
     }
   ]
 }
