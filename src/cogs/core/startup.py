@@ -19,7 +19,7 @@ class Startup(commands.Cog):
         print()
 
         
-        # await self.register_guild.register_guilds(self.bot.guilds)
+        await self.register_guild.register_guilds(self.bot.guilds)
 
         # for guild in self.bot.guilds:
         #     await self.register_member.register_members(guild.members)
