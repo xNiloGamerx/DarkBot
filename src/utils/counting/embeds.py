@@ -1,3 +1,4 @@
+from datetime import datetime
 import discord
 
 from discord.ext import commands
@@ -39,8 +40,42 @@ class Embeds:
                 "Nutze deine Punkte, um Checkpoints zu kaufen und euren Fortschritt zu sichern.\nDer Checkpoint ist am Anfang bei **0**."
             )
 
-            embed.set_footer(text=f"Counting - {bot.user.name}#{bot.user.discriminator}")
+            embed.set_footer(text=f"Counting • {bot.user.name}#{bot.user.discriminator}")
 
             await channel.send(embed=embed)
         except Exception as e:
             print(f"Fehler beim Senden des Embeds: {e}")
+
+    @staticmethod
+    def create_success_embed(title, message, footer_text=None):
+        # Farbe: Ein schönes Grün (Green 0x2ecc71)
+        embed = discord.Embed(
+            title=f"✅ {title}",
+            description=message,
+            color=0x2ecc71,
+            timestamp=datetime.now()
+        )
+    
+        if footer_text:
+            embed.set_footer(text=footer_text)
+        else:
+            embed.set_footer(text="Aktion erfolgreich ausgeführt")
+            
+        return embed
+
+    @staticmethod
+    def create_error_embed(error_title, error_message, command_name=None):
+        # Farbe: Ein kräftiges Rot (Red 0xe74c3c)
+        embed = discord.Embed(
+            title=f"❌ Fehler: {error_title}",
+            description=error_message,
+            color=0xe74c3c,
+            timestamp=datetime.now()
+        )
+        
+        if command_name:
+            embed.add_field(name="Befehl", value=f"`/{command_name}`", inline=True)
+        
+        embed.set_footer(text="Falls das öfter passiert, kontaktiere bitte @xxnilogamerxx.")
+        
+        return embed

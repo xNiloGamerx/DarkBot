@@ -13,7 +13,7 @@ class CountingCommands(commands.Cog):
         self.connection = bot.supabase_connection
         self.register_channel = RegisterChannel(self.connection)
         self.register_counting_guild = RegisterCountingGuild(self.connection)
-        self.shop = CountingShop(self.bot)
+        self.shop_obj = CountingShop(self.bot)
     
     counting = app_commands.Group(
         name="counting", 
@@ -48,7 +48,8 @@ class CountingCommands(commands.Cog):
         self,
         interaction: discord.Interaction
     ):
-        await self.shop.open(interaction)
+        print("1")
+        await self.shop_obj.open(interaction)
 
     @counting.command(name="test_embed", description="Neues Counting embed testen.")
     async def test_embed(

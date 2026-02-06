@@ -10,18 +10,25 @@ class CountingGuild:
         self.connection = connection
 
     async def get(self, guild: Guild) -> bool:
-        # Logic to check if a channel is a counting channel in the database
-        print(f"\n\nGetting counting guild for Guild ID: {guild.id}")
-        response = await self.connection.functions.invoke(
-            "get-counting-guild",
-            invoke_options={
-                "body": {
-                    "guild_id": str(guild.id)
+        try:
+            # Logic to check if a channel is a counting channel in the database
+            print(f"\n\nGetting counting guild for Guild ID: {guild.id}")
+            binary_response = await self.connection.functions.invoke(
+                "get-counting-guild",
+                invoke_options={
+                    "body": {
+                        "guild_id": str(guild.id)
+                    }
                 }
-            }
-        )
-        print(f"Counting guild get result: {response}")
-        return json.loads(response.decode())[0]
+            )
+            response = binary_response.decode()
+            print(f"Counting guild get result: {response}")
+            if response:
+                return json.loads(response)[0]
+            else:
+                return None
+        except Exception as e:
+            print(f"Error in counting_guild get:  {e}")
 
     async def update(self, id: int, last_counted_number: int | None = None, last_counted_user_id: int | None = None, count_checkpoint: int | None = None, count_points: int | None = None, last_counted_at: str | None = None):
         if not id:
