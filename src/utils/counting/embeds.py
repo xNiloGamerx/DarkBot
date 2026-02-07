@@ -62,6 +62,23 @@ class Embeds:
             embed.set_footer(text="Aktion erfolgreich ausgeführt")
             
         return embed
+    
+    @staticmethod
+    def create_warning_embed(title, message, footer_text=None):
+        # Farbe: Ein schönes Grün (Green 0x2ecc71)
+        embed = discord.Embed(
+            title=f"⚠️ {title}",
+            description=message,
+            color=0xffa500,
+            timestamp=datetime.now()
+        )
+    
+        if footer_text:
+            embed.set_footer(text=footer_text)
+        else:
+            embed.set_footer(text="Warnung, bitte die Nachricht lesen")
+            
+        return embed
 
     @staticmethod
     def create_error_embed(error_title, error_message, command_name=None):
@@ -108,3 +125,31 @@ class Embeds:
         embed.add_field(name="🟢 Ob dein Nutzer Profil im DarkBot System aktiv ist oder nicht", value=f"`true/false`", inline=False)
 
         return embed
+
+    @staticmethod
+    def create_privacy_user_info_embed(user: discord.Member, user_data: dict, counting_user_data: dict):
+        combined_data = {**user_data, **counting_user_data}
+
+        lines = [
+            f"**{key.replace('out_', '').replace('_', ' ').title()}**: `{value}`" 
+            for key, value in combined_data.items()
+        ]
+
+        embed = discord.Embed(
+            title="👤 Nutzer-Datenblatt",
+            description=(
+                f"Übersicht über die erhobenen Daten von  {user.mention}"
+            ),
+            color=0x5865f2
+        )
+
+        embed.set_thumbnail(url=user.display_avatar.url)
+
+        embed.add_field(
+            name="🆔 Account-Info",
+            value="\n".join(lines)
+        )
+
+        return embed
+        
+        

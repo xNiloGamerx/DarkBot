@@ -44,3 +44,18 @@ class CountingUser:
         )
         print(f"User Counting update result: {response}")
         return json.loads(response.decode())
+
+    async def delete(self, guild: Guild, member: Member) -> bool:
+        # Logic to check if a channel is a counting channel in the database
+        print(f"\n\nDeleting counting user for Member ID: {member.id}, Guild ID: {guild.id}")
+        response = await self.connection.functions.invoke(
+            "delete-counting-user",
+            invoke_options={
+                "body": {
+                    "user_id": str(member.id),
+                    "guild_id": str(guild.id)
+                }
+            }
+        )
+        print(f"Delete Counting User result: {response}")
+        return json.loads(response.decode())

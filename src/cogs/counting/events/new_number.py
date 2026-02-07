@@ -99,6 +99,7 @@ class NewNumber(commands.Cog):
                 return
 
             guild = message.guild
+            print(guild.id)
             channel = message.channel
 
             if guild.id not in self.counting_channel_cache:
