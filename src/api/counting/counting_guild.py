@@ -21,10 +21,10 @@ class CountingGuild:
                     }
                 }
             )
-            response = binary_response.decode()
+            response = json.loads(binary_response.decode())
             print(f"Counting guild get result: {response}")
             if response:
-                return json.loads(response)[0]
+                return response[0]
             else:
                 return None
         except Exception as e:

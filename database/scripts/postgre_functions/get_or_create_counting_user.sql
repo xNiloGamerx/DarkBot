@@ -23,6 +23,10 @@ BEGIN
     WHERE u.user_id = p_data->>'user_id'
       AND g.guild_id = p_data->>'guild_id';
 
+    IF res_user_guild_id IS NULL THEN
+        RETURN;
+    END IF;
+
     -- 2. Versuche, den counting_user einzufügen
     RETURN QUERY
     INSERT INTO counting_user(user_guild_id)

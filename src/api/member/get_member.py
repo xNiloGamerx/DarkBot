@@ -24,3 +24,21 @@ class GetMember:
             return False
         else:
             return response[0]
+        
+    async def get_by_id(self, id: int):
+        # Logic to check if a channel is a counting channel in the database
+        print(f"\n\nGetting user for ID: {id}")
+        binary_response = await self.connection.functions.invoke(
+            "get-user-by-id",
+            invoke_options={
+                "body": {
+                    "id": id
+                }
+            }
+        )
+        response = json.loads(binary_response.decode())
+        print(f"User get result: {response}")
+        if len(response) <= 0:
+            return False
+        else:
+            return response[0]

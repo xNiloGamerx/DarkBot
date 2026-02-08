@@ -7,6 +7,7 @@ from api.counting.counting_guild import CountingGuild
 from api.counting.counting_user import CountingUser
 from api.counting.wrong_number import WrongNumber
 from api.member.check_if_member_exists import CheckIfMemberExists
+from api.member.register_member import RegisterMember
 from utils.counting.calculation import Calculation
 from utils.counting.reactions import Reactions
 from utils.counting.validator import Validator
@@ -78,11 +79,18 @@ class NewNumber(commands.Cog):
         await Reactions.add_cross_mark_reaction(message)
         
         guild = message.guild
+        author = message.author
 
         counting_guild_data = await self.counting_guild.get(guild)
+        counting_user = await self.counting_user.get_or_create(guild, author)
 
         await self.wrong_number.run(
             counting_guild_data.get("out_id")
+        )
+        await self.counting_user.update(
+            counting_user.get("out_id"),
+            count_total=counting_user.get("out_count_total", 0) + 1,
+            count_errors=counting_user.get("out_count_errors", 0) + 1
         )
 
     @commands.Cog.listener()

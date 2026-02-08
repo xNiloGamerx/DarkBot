@@ -1,7 +1,8 @@
 from datetime import datetime
-import discord
 
+import discord
 from discord.ext import commands
+from discord.utils import format_dt
 
 class Embeds:
     def __init__(self):
@@ -152,4 +153,36 @@ class Embeds:
 
         return embed
         
-        
+    @staticmethod
+    def create_counting_guild_stats_embed(interaction: discord.Interaction, counting_guild_data: dict, last_counted_user: discord.Member | str):
+        last_counted_at_time = datetime.fromisoformat(counting_guild_data['out_last_counted_at']) if counting_guild_data['out_last_counted_at'] else "Nie"
+
+        embed = discord.Embed(
+            title="📊 Server Statistiken",
+            description=f"Statistiken für Server {interaction.guild.name}",
+            color=discord.Color.blue(),
+            timestamp=datetime.now()
+        )
+        embed.add_field(name="🔢 Letzte Zahl", value=f"**{counting_guild_data['out_last_counted_number']}**", inline=True)
+        embed.add_field(name="🏆 Punkte", value=f"**{counting_guild_data['out_count_points']}**", inline=True)
+        embed.add_field(name="📍 Checkpoint", value=f"**{counting_guild_data['out_count_checkpoint']}**", inline=True)
+        embed.add_field(name="👤 Letzter User", value=f"{last_counted_user if isinstance(last_counted_user, str) else last_counted_user.mention}", inline=True)
+        embed.add_field(name="🕑 Zuletzt gezählt", value=f"{last_counted_at_time if isinstance(last_counted_at_time, str) else format_dt(last_counted_at_time, style="R")}", inline=True)
+
+        return embed
+    
+    @staticmethod
+    def create_counting_member_stats_embed(counting_user_data, reaction_time, user):
+        embed_user = discord.Embed(
+            title="👤 User Zähler-Profil",
+            description=f"Profil-Details für **{user.mention if user else "dich"}**",
+            color=discord.Color.gold()
+        )
+        embed_user.add_field(name="📈 Gesamt gezählt", value=f"**{counting_user_data['out_count_total']}**", inline=True)
+        embed_user.add_field(name="✅ Richtig", value=f"**{counting_user_data['out_count_total'] - counting_user_data['out_count_errors']}**", inline=True)
+        embed_user.add_field(name="❌ Fehler", value=f"**{counting_user_data['out_count_errors']}**", inline=True)
+        embed_user.add_field(name="💎 Punkte", value=f"**{counting_user_data['out_count_points']}**", inline=True)
+        embed_user.add_field(name="⚡ Ø Reaktionszeit", value=f"**{reaction_time:,.0f}s**", inline=False)
+        embed_user.set_footer(text=f"")
+
+        return embed_user
