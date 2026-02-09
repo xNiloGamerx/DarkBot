@@ -118,7 +118,7 @@ class NewNumber(commands.Cog):
                 if self.counting_channel_cache[guild.id] != channel.id:
                     return
                 
-            if not await self.check_if_member_exists.check_if_member_exists(author):
+            if not await self.check_if_member_exists.check_if_member_exists(author, guild):
                 await message.delete()
                 await self.privacy_policy.counting_privacy(author, channel)
                 return
