@@ -72,13 +72,15 @@ class CountingCommands(commands.Cog):
             ephemeral: bool = False
     ):
         try:
+            await interaction.response.defer(thinking=True, ephemeral=ephemeral)
+
             counting_guild_data = await self.counting_guild.get(interaction.guild)
             user_data = await self.get_member.get_by_id(counting_guild_data['out_last_counted_user_id'])
             last_counted_user = await self.bot.fetch_user(user_data["user_id"]) if user_data else "Keiner"
             print(last_counted_user)
 
             if not counting_guild_data:
-                await interaction.response.send_message(embed=self.embeds.create_error_embed("Kein Counting Profil vorhanden!", "Es wurde bis jetzt kein Counting Spiel angelegt, benutze den Befehl `/counting create` um eines zu erstellen!"), ephemeral=True)
+                await interaction.followup.send(embed=self.embeds.create_error_embed("Kein Counting Profil vorhanden!", "Es wurde bis jetzt kein Counting Spiel angelegt, benutze den Befehl `/counting create` um eines zu erstellen!"), ephemeral=True)
                 return
             
             embed_guild = self.embeds.create_counting_guild_stats_embed(interaction, counting_guild_data, last_counted_user)
@@ -88,14 +90,14 @@ class CountingCommands(commands.Cog):
 
             if not counting_user_data:
                 embed_user_not_exist = self.embeds.create_error_embed("Der Nutzer existiert nicht!", "Der Nutzer oder du selbst hat bis jetzt kein Profil!")
-                await interaction.response.send_message(embeds=[embed_guild, embed_user_not_exist], ephemeral=ephemeral)
+                await interaction.followup.send(embeds=[embed_guild, embed_user_not_exist])
                 return
 
             reaction_time = counting_user_data['out_avg_count_reaction_time'] / 1000
 
             embed_user = self.embeds.create_counting_member_stats_embed(counting_user_data, reaction_time, user)
 
-            await interaction.response.send_message(embeds=[embed_guild, embed_user], ephemeral=ephemeral)
+            await interaction.followup.send(embeds=[embed_guild, embed_user])
         except Exception as e:
             print(f"Error in counting stats command: {e}")
             print(traceback.format_exc())

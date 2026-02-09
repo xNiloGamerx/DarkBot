@@ -1,3 +1,6 @@
+Zum starten auf VPS: python3.14 -m main
+
+
 User:
 user id ✓
 username ✓
